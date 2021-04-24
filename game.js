@@ -16,7 +16,7 @@ const TILE_GAP = 4;
 const TILE_SPACE = TILE_WIDTH + TILE_GAP;
 
 function preload() {
-    this.load.setBaseURL('http://labs.phaser.io');
+    this.load.setBaseURL('https://labs.phaser.io');
 
     this.load.image('sky', 'assets/skies/space3.png');
 
