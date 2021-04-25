@@ -38,22 +38,29 @@ let shiftKey;
 let curBuild;
 let test;
 
-function create() {
-    const graphics = this.add.graphics();
-
-    // Make lower half of map "ground"
-    const groundRect = new Phaser.Geom.Rectangle(0, 400, 800, 400);
-    graphics.fillStyle(0x662822);
-    graphics.fillRectShape(groundRect);
-
+function initInterface(parent) {
     // Initialize text label of clock
-    clockText = this.add.bitmapText(10, 20, 'carrier_command','',32);
+    clockText = parent.add.bitmapText(10, 20, 'carrier_command','',32);
     
     // Initialize text labeling of current tile
-    const menuText = this.add.bitmapText(600, 40, 'carrier_command','curbuild:',16);
+    const menuText = parent.add.bitmapText(600, 40, 'carrier_command','curbuild:',16);
 
+    // Create 'animation' for 'current build item' 
+    parent.anims.create({
+            key: 'curBuild',
+            frames: parent.anims.generateFrameNumbers('tiles_sprite', { frames: [ 8 ] }),
+        });
+
+    curBuild = parent.add.sprite(700, 100);
+
+    curBuild.setScale(4);
+    curBuild.play('curBuild');
+    curBuild.setInteractive();
+}
+
+function initMap(parent) {
     // Initialize map
-    map = this.make.tilemap({ key: 'map' });
+    map = parent.make.tilemap({ key: 'map' });
 
     var tiles = map.addTilesetImage('Desert', 'tiles');
     var layer1 = map.createLayer('Ground', tiles, 0, 400 - Map.tileWidth);
@@ -62,40 +69,40 @@ function create() {
     // Initialize map selector
     selectedTile = map.getTileAt(2, 3);
 
-    marker = this.add.graphics();
+    marker = parent.add.graphics();
     marker.lineStyle(2, 0x000000, 1);
     marker.strokeRect(0, 0, map.tileWidth, map.tileHeight);
 
     // Enable scrolling, but don't scroll off the map
-    this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-    var cursors = this.input.keyboard.createCursorKeys();
+    parent.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+    var cursors = parent.input.keyboard.createCursorKeys();
     var controlConfig = {
-        camera: this.cameras.main,
+        camera: parent.cameras.main,
         left: cursors.left,
         right: cursors.right,
         up: cursors.up,
         down: cursors.down,
         speed: 0.5
     };
+    controls = new Phaser.Cameras.Controls.FixedKeyControl(controlConfig);
+}
+
+function create() {
+    const graphics = this.add.graphics();
+
+    // Make lower half of map "ground"
+    const groundRect = new Phaser.Geom.Rectangle(0, 400, 800, 400);
+    graphics.fillStyle(0x662822);
+    graphics.fillRectShape(groundRect);
+
+    initInterface(this);
+
+    initMap(this);
 
     // Initialize some keys
-    controls = new Phaser.Cameras.Controls.FixedKeyControl(controlConfig);
     shiftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
     qKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
     bKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.B);
-
-    // Create 'animation' for 'current build item' 
-    this.anims.create({
-            key: 'curBuild',
-            frames: this.anims.generateFrameNumbers('tiles_sprite', { frames: [ 8 ] }),
-        });
-
-    curBuild = this.add.sprite(700, 100);
-
-    curBuild.setScale(4);
-    curBuild.play('curBuild');
-    curBuild.setInteractive();
-
 }
 
 function update(time, delta) {
