@@ -226,12 +226,19 @@ function update(time, delta) {
         }
 
         if (dKey.isDown) {
-            map.setLayer(1);
-            map.putTileAt(Map.effectCodes.MINING_FOCUS, pointerTileX, pointerTileY, 'Overlay');
-            const mineTile = map.getTileAtWorldXY(worldPoint.x, worldPoint.y);
-            mineTile.timeExpire = Map.MINING_RATE;
+            // check if ground exists
 
-            miningTiles.add(mineTile);
+            map.setLayer(0);
+            const groundTile = map.getTileAt(pointerTileX, pointerTileY);
+
+
+            if (groundTile) {
+                map.setLayer(1);
+                map.putTileAt(Map.effectCodes.MINING_FOCUS, pointerTileX, pointerTileY);
+                const mineTile = map.getTileAtWorldXY(worldPoint.x, worldPoint.y);
+                mineTile.timeExpire = Map.MINING_RATE;
+                miningTiles.add(mineTile);
+            }
         }
 
         if (sKey.isDown) {
@@ -269,10 +276,10 @@ function update(time, delta) {
                 break;
         }
 
-        if (resource && curResources[resource] < maxResources[resource]) {
-            curResources[resource] += delta / 1000;
-        } else {
-            console.log("ERROR: Invalid resource: " + resource);
+        if (resource) {
+            if (curResources[resource] < maxResources[resource]) {
+                curResources[resource] += delta / 1000;
+            }
         }
 
         if (tile.timeExpire < 0) {
