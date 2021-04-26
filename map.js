@@ -11,14 +11,96 @@ const tileCodes = {
     WATER: 2,
     SILICON: 3,
     METAL: 4,
+};
 
+const buildingCodes = {
     SOLAR_PANEL: 9,
     TERRARIUM: 10,
+    APARTMENTS: 11,
 
+    ENERGY_STORAGE: 25,
+    WATER_STORAGE: 26,
+    SILICON_STORAGE: 27,
+    METAL_STORAGE: 28, 
+    FOILAGE_STORAGE: 29,
+};
+
+const buildingCost = {
+    [buildingCodes.SOLAR_PANEL]: {
+        silicon: 1,
+        energy: 1,
+        metal: 1,
+    },
+    [buildingCodes.TERRARIUM]: {
+        metal: 1,
+        water: 1,
+        energy: 1,
+    },
+    [buildingCodes.APARTMENTS]: {
+        metal: 2,
+        energy: 1,
+    },
+
+    [buildingCodes.ENERGY_STORAGE]: {
+        energy: 1,
+        metal: 1,
+        silicon: 1,
+    },
+    [buildingCodes.WATER_STORAGE]: {
+        energy: 1,
+        metal: 1,
+    },
+    [buildingCodes.SILICON_STORAGE]: {
+        energy: 1,
+        metal: 1,
+    },
+    [buildingCodes.METAL_STORAGE]: {
+        energy: 1,
+        metal: 1,
+    }, 
+    [buildingCodes.FOILAGE_STORAGE]: {
+        energy: 1,
+        metal: 1,
+        water: 1,
+    },
+}
+
+const buildingResourceUse = {
+    [buildingCodes.SOLAR_PANEL]: {
+        water: 0.2,
+    },
+    [buildingCodes.TERRARIUM]: {
+        energy: 0.5,
+    },
+    [buildingCodes.APARTMENTS]: {
+        energy: 0.5,
+        water: 0.5,
+        foilage: 0.5,
+    },
+
+    [buildingCodes.ENERGY_STORAGE]: {},
+    [buildingCodes.WATER_STORAGE]: {
+        energy: 0.2,
+    },
+    [buildingCodes.SILICON_STORAGE]: {},
+    [buildingCodes.METAL_STORAGE]: {}, 
+    [buildingCodes.FOILAGE_STORAGE]: {
+        energy: 0.5,
+        water: 0.2
+    },
+}
+
+const effectCodes = {
     MINING_FOCUS: 17,
 };
 
+
 export {
     tileWidth,
-    tileCodes
+    tileCodes,
+    buildingCodes,
+    effectCodes,
+
+    buildingCost,
+    buildingResourceUse,
 }
