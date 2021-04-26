@@ -1,5 +1,6 @@
 const tileWidth = 16;
 
+const MINING_RATE = 5000;
 
         // 30 is raw                             1
         // 10 is metal, 20 21 28 29              4
@@ -70,6 +71,7 @@ const buildingResourceUse = {
         water: 0.2,
     },
     [buildingCodes.TERRARIUM]: {
+        water: 0.5,
         energy: 0.5,
     },
     [buildingCodes.APARTMENTS]: {
@@ -90,6 +92,25 @@ const buildingResourceUse = {
     },
 }
 
+const buildingResourceGain = {
+    [buildingCodes.SOLAR_PANEL]: {
+        energy: 0.5,
+    },
+    [buildingCodes.TERRARIUM]: {
+        foilage: 0.5,
+    },
+    [buildingCodes.APARTMENTS]: {
+    },
+
+    [buildingCodes.ENERGY_STORAGE]: {},
+    [buildingCodes.WATER_STORAGE]: {
+    },
+    [buildingCodes.SILICON_STORAGE]: {},
+    [buildingCodes.METAL_STORAGE]: {}, 
+    [buildingCodes.FOILAGE_STORAGE]: {
+    },
+}
+
 const effectCodes = {
     MINING_FOCUS: 17,
 };
@@ -103,4 +124,7 @@ export {
 
     buildingCost,
     buildingResourceUse,
+    buildingResourceGain,
+
+    MINING_RATE
 }

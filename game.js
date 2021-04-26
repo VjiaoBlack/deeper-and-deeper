@@ -39,6 +39,8 @@ let selectedTile;
 let marker; 
 let qKey;
 let bKey;
+let sKey;
+let dKey;
 let controls;
 let shiftKey;
 let curBuild;
@@ -75,6 +77,8 @@ const maxResources = {
 const buildingCount = {}
 
 let currentBuild = 9;
+
+const miningTiles = new Set();
 
 
 function initInterface(parent) {
@@ -148,6 +152,8 @@ function create() {
     shiftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
     qKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
     bKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.B);
+    dKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+    sKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
 
     // Initialize building count
     Object.values(Map.buildingCodes).forEach((x) => {
@@ -218,13 +224,98 @@ function update(time, delta) {
                 }
             }
         }
+
+        if (dKey.isDown) {
+            map.setLayer(1);
+            map.putTileAt(Map.effectCodes.MINING_FOCUS, pointerTileX, pointerTileY, 'Overlay');
+            const mineTile = map.getTileAtWorldXY(worldPoint.x, worldPoint.y);
+            mineTile.timeExpire = Map.MINING_RATE;
+
+            miningTiles.add(mineTile);
+        }
+
+        if (sKey.isDown) {
+            map.setLayer(1);
+            const mineTile = map.getTileAtWorldXY(worldPoint.x, worldPoint.y);
+            if (mineTile) {
+                console.log(mineTile.timeExpire);
+            }
+        }
     }
+
+    // Go through mining tiles and update them 
+    miningTiles.forEach((tile) => {
+        tile.timeExpire -= delta;
+        const x = tile.x;
+        const y = tile.y;
+
+        // Add resources based on tile index
+        map.setLayer(0);
+        const groundTile = map.getTileAt(x, y);
+
+        let resource;
+        switch(groundTile.index) {
+            case Map.tileCodes.WATER:
+                resource = 'water';
+                break;
+            case Map.tileCodes.SILICON:
+                resource = 'silicon';
+                break;
+            case Map.tileCodes.METAL: 
+                resource = 'metal';
+                break;
+            case Map.tileCodes.DIRT:
+            default:
+                break;
+        }
+
+        if (resource && curResources[resource] < maxResources[resource]) {
+            curResources[resource] += delta / 1000;
+        } else {
+            console.log("ERROR: Invalid resource: " + resource);
+        }
+
+        if (tile.timeExpire < 0) {
+            // remove both this tile and the other
+            miningTiles.delete(tile);
+
+            map.setLayer(0);
+            map.removeTileAt(x, y);
+            map.setLayer(1);
+            map.removeTileAt(x, y);
+        }
+    });
 
     // Update resources based on buildings
-    if (curResources.energy < maxResources.energy) {
-        curResources.energy += (buildingCount[Map.buildingCodes.SOLAR_PANEL] ?? 0) * delta / 1000;
-    }
+    // TODO
+    // need way to keep track of "disabled" buildings (that don't have enough resources)
+    for (let resource in curResources) {
+        if (curResources[resource] < maxResources[resource]) {
+                for (let building in buildingCount) {
+                if (Map.buildingResourceGain[building][resource] && 
+                    Map.buildingResourceGain[building][resource] > 0) {
+                    curResources[resource] += Map.buildingResourceGain[building][resource] *
+                        (buildingCount[building] ?? 0) * delta / 1000;
 
+                }
+            }
+        }
+
+        if (curResources[resource] > 0) {
+            for (let building in buildingCount) {
+                if (Map.buildingResourceUse[building][resource] && 
+                    Map.buildingResourceUse[building][resource] > 0) {
+                    curResources[resource] -= Map.buildingResourceUse[building][resource] *
+                        (buildingCount[building] ?? 0) * delta / 1000;
+                }
+            }
+        }
+
+        if (curResources[resource] < 0) {
+            curResources[resource] = 0;
+        }
+    }
+    
     // Download file
     if (bKey.isDown) {
         // console.log(map.layers[0].data.reduce((acc, x) =>  acc + "," + x.map(x => x.index), []));
